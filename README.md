@@ -14,38 +14,7 @@
 
 ### Решение:
 
-**Конфигурационный файл HAProxy (configs/task1-roundrobin.cfg):**
-```haproxy
-global
-    daemon
-    log stdout local0 info
-    maxconn 4096
-
-defaults
-    mode tcp
-    timeout connect 5000ms
-    timeout client 50000ms
-    timeout server 50000ms
-    option tcplog
-    log global
-
-frontend tcp_frontend
-    bind *:8090
-    default_backend tcp_backend
-    capture request header Host len 32
-
-backend tcp_backend
-    balance roundrobin
-    option tcp-check
-    server server1 127.0.0.1:8001 check inter 2000ms rise 2 fall 3
-    server server2 127.0.0.1:8002 check inter 2000ms rise 2 fall 3
-
-listen stats
-    bind *:8404
-    stats enable
-    stats uri /stats
-    stats auth admin:password
-```
+**Конфигурационный файл HAProxy:** [configs/task1-roundrobin.cfg](configs/task1-roundrobin.cfg)
 
 **Скриншот результата тестирования:**
 
@@ -69,45 +38,7 @@ listen stats
 
 ### Решение:
 
-**Конфигурационный файл HAProxy (configs/task2-weighted.cfg):**
-```haproxy
-global
-    daemon
-    log stdout local0 info
-    maxconn 4096
-
-defaults
-    mode http
-    timeout connect 5000ms
-    timeout client 50000ms
-    timeout server 50000ms
-    option httplog
-    option http-server-close
-    option forwardfor
-    log global
-
-frontend http_frontend
-    bind *:8090
-    acl is_example_local hdr(host) -i example.local
-    use_backend http_backend if is_example_local
-    default_backend reject_backend
-
-backend http_backend
-    balance roundrobin
-    option httpchk GET /
-    server server1 127.0.0.1:8001 check inter 2000ms rise 2 fall 3 weight 2
-    server server2 127.0.0.1:8002 check inter 2000ms rise 2 fall 3 weight 3
-    server server3 127.0.0.1:8003 check inter 2000ms rise 2 fall 3 weight 4
-
-backend reject_backend
-    http-request deny
-
-listen stats
-    bind *:8404
-    stats enable
-    stats uri /stats
-    stats auth admin:password
-```
+**Конфигурационный файл HAProxy:** [configs/task2-weighted.cfg](configs/task2-weighted.cfg)
 
 **Скриншот 1 - Взвешенная балансировка с доменом example.local:**
 
